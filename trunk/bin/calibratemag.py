@@ -167,6 +167,14 @@ if __name__ == "__main__":
         with open(args.exzp) as f:
             lista2 = f.read().splitlines()
         standards = get_image_data(lista2)
+        # Replace None (MySQL NULL) with empty string so group_by can sort the keys.
+        # In Python 3, numpy cannot compare None with str using '<', which causes
+        # argsort inside astropy's group_by to fail with TypeError when multiple
+        # standards in the same filter have different zcol1/zcol2 values (one NULL,
+        # one a string like 'UB'). This is a Python 2→3 regression.
+        for _col in ('zcol1', 'zcol2'):
+            if standards[_col].dtype.kind == 'O':
+                standards[_col] = ['' if v is None else v for v in standards[_col]]
         standards = standards.group_by(['dayobs', tel_kwd, inst_kwd, 'filter', 'zcol1', 'zcol2'])
         for icol in ['zcol1', 'z1', 'dz1', 'c1', 'dc1', 'zcol2', 'z2', 'dz2', 'c2', 'dc2']:
             targets[icol].mask = True
