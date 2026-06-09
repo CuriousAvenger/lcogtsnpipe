@@ -167,11 +167,6 @@ if __name__ == "__main__":
         with open(args.exzp) as f:
             lista2 = f.read().splitlines()
         standards = get_image_data(lista2)
-        # Replace None (MySQL NULL) with empty string so group_by can sort the keys.
-        # In Python 3, numpy cannot compare None with str using '<', which causes
-        # argsort inside astropy's group_by to fail with TypeError when multiple
-        # standards in the same filter have different zcol1/zcol2 values (one NULL,
-        # one a string like 'UB'). This is a Python 2→3 regression.
         for _col in ('zcol1', 'zcol2'):
             if standards[_col].dtype.kind == 'O':
                 standards[_col] = ['' if v is None else v for v in standards[_col]]
@@ -181,10 +176,6 @@ if __name__ == "__main__":
         for group in standards.groups:
             matches_in_targets = ((targets['dayobs'] == group['dayobs'][0]) & (targets[tel_kwd] == group[tel_kwd][0])
                                    & (targets[inst_kwd] == group[inst_kwd][0]) & (targets['filter'] == group['filter'][0]))
-            # Convert from numpy.ma.MaskedArray to plain ndarray so fancy indexing
-            # actually unmask+assign values. When np is numpy.ma, boolean comparisons
-            # on masked table columns return MaskedArray, which silently fails during
-            # element assignment in astropy Table columns (a Python 2→3 regression).
             if hasattr(matches_in_targets, 'data'):
                 matches_in_targets = matches_in_targets.data
             if not np.any(matches_in_targets):
