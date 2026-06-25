@@ -30,6 +30,15 @@ sys.modules.setdefault("pyraf.iraf", _iraf_mock)
 sys.modules.setdefault("iraf", _iraf_mock)
 
 # ---------------------------------------------------------------------------
+# Stub astroquery so lscabsphotdef imports cleanly without astroquery installed
+# ---------------------------------------------------------------------------
+_astroquery_mock = MagicMock()
+sys.modules.setdefault("astroquery", _astroquery_mock)
+sys.modules.setdefault("astroquery.sdss", _astroquery_mock.sdss)
+sys.modules.setdefault("astroquery.vizier", _astroquery_mock.vizier)
+sys.modules.setdefault("astroquery.gaia", _astroquery_mock.gaia)
+
+# ---------------------------------------------------------------------------
 # Also stub MySQLdb / pymysql so mysqldef imports cleanly without a DB server
 # ---------------------------------------------------------------------------
 _msql_mock = MagicMock()
