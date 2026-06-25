@@ -251,7 +251,7 @@ if __name__ == "__main__":
             if not os.path.isfile(dictionary['filepath'] + outname) or force:
                 print('mv ' + outname + ' ' + dictionary['filepath'] + outname)
                 os.system('mv ' + outname + ' ' + dictionary['filepath'] + outname)
-                os.chmod(dictionary['filepath'] + outname, 0664)
+                os.chmod(dictionary['filepath'] + outname, 0o664)
 
             ggg = lsc.mysqldef.getfromdataraw(conn, 'photpairing', 'nameout', str.split(outname, '/')[-1], '*')
             if ggg:   lsc.mysqldef.deleteredufromarchive(str.split(outname, '/')[-1], 'photpairing', 'nameout')

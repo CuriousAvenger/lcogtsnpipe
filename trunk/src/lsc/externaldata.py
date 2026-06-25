@@ -646,7 +646,7 @@ def downloadPS1(homedir,filename):
                     os.mkdir(homedir+filename)
                 os.system('mv '+str.split(localFilename3,'/')[-1]+' '+homedir+filename+'/')
                 if 'unconv.fits' in str.split(localFilename3,'/')[-1]:
-                           frames.append(homedir+filename++'/'+str.split(localFilename3,'/')[-1])
+                           frames.append(homedir+filename+'/'+str.split(localFilename3,'/')[-1])
     except:
         print('stamp_directory not found ')
         sys.exit()
