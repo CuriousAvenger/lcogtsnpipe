@@ -30,6 +30,8 @@ _temp.list
 .DS_Store
 .AppleDouble
 *.*~
+venv
+CLAUDE.md
 
 ## Data files (not versioned)
 *.fits

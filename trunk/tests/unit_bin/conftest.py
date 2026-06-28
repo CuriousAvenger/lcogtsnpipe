@@ -6,10 +6,17 @@ We stub the entire pyraf namespace in sys.modules before any lsc import so
 that module-level statements like ``from pyraf import iraf`` and
 ``iraf.noao(_doprint=0)`` are silently absorbed by MagicMock objects.
 """
+import gc
 import os
+import resource
 import sys
 import types
 from unittest.mock import MagicMock
+
+# Raise file descriptor limit to avoid "Too many open files" from repeated
+# runpy.run_path calls accumulating handles across the test session.
+_soft, _hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+resource.setrlimit(resource.RLIMIT_NOFILE, (min(_hard, 8192), _hard))
 
 TESTS_DIR = os.path.dirname(__file__)
 TRUNK_DIR = os.path.dirname(TESTS_DIR)
@@ -64,12 +71,12 @@ from astropy.io import fits
 @pytest.fixture(autouse=True)
 def _reset_iraf_mock():
     """Reset the shared iraf mock before each test to prevent side_effect leakage."""
-    actual_iraf = sys.modules['pyraf'].iraf
-    actual_iraf.reset_mock(side_effect=True, return_value=True)
-    for child in list(actual_iraf._mock_children.values()):
+    _iraf_mock.reset_mock(side_effect=True, return_value=True)
+    for child in list(_iraf_mock._mock_children.values()):
         if hasattr(child, 'reset_mock'):
             child.reset_mock(side_effect=True, return_value=True)
     yield
+    gc.collect()
 
 @pytest.fixture(scope="session")
 def simple_fits(tmp_path_factory):

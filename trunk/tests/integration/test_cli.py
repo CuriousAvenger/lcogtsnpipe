@@ -26,6 +26,8 @@ def _run(script_name, *args, timeout=30):
     script = os.path.join(BIN_DIR, script_name)
     env = os.environ.copy()
     env["PYTHONPATH"] = STUB_DIR + os.pathsep + SRC_DIR + os.pathsep + env.get("PYTHONPATH", "")
+    env.setdefault("LCOSNDIR", "/tmp")
+    env.setdefault("LCOSNPIPE", os.path.dirname(BIN_DIR))
     return subprocess.run(
         [sys.executable, script, *args],
         capture_output=True,

@@ -64,6 +64,8 @@ from astropy.io import fits
 @pytest.fixture(autouse=True)
 def _reset_iraf_mock():
     """Reset the shared iraf mock before each test to prevent side_effect leakage."""
+    # Always reset the actual mock in sys.modules (may differ from local _iraf_mock
+    # if the parent tests/conftest.py already set it via setdefault)
     actual_iraf = sys.modules['pyraf'].iraf
     actual_iraf.reset_mock(side_effect=True, return_value=True)
     for child in list(actual_iraf._mock_children.values()):
