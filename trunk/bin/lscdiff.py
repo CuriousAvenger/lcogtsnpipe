@@ -171,7 +171,7 @@ if __name__ == "__main__":
                         exp_temp = lsc.util.readkey3(head_temp, 'exptime')
                         sat_temp = lsc.util.readkey3(head_temp, 'datamax')
                         gain_temp = lsc.util.readkey3(head_temp, 'gain')
-                        rn_temp = head_temp.get('rdnoise', 1)
+                        rn_temp = lsc.util.readkey3(head_temp, 'ron') or 1
 
                         imgtemp = '_temp.fits'
                         imgtarg = '_targ.fits'
