@@ -52,7 +52,11 @@ def limmag(img, zeropoint=0, Nsigma_limit=3, _fwhm = 5):
     if _radius and _gain and _skynoise:
         print(_skynoise, _gain, _radius)
         #    mag = calc_limit_mag(Nsigma_limit, _sky, _gain, _readnoise, _exptime, zeropoint, _radius)
-        limit_counts = fsolve(snr_helper, np.median(data), args = [Nsigma_limit, _readnoise, _gain, _skynoise,_radius])[0]
+        # Seed near the analytic root c*g ~= Nsigma^2 (exact for the low-noise
+        # diff-image case). np.median(data) ~= 0 on diff images lands left of the
+        # SNR curve's minimum, so fsolve steps into the sqrt's nan wall, returns
+        # ~0, and limmag blows up (~104 instead of ~21). See drift analysis.
+        limit_counts = fsolve(snr_helper, Nsigma_limit**2 / _gain, args = [Nsigma_limit, _readnoise, _gain, _skynoise,_radius])[0]
         mag = -2.5 * np.log10(limit_counts / _exptime) + zeropoint
     else:
         mag = 9999
