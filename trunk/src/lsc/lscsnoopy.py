@@ -29,8 +29,8 @@ def fitsn(img,imgpsf,coordlist,_recenter,fwhm0,original,sn,residual,_show,_inter
     _ron=lsc.util.readkey3(hdr,'ron')
     _exptime=lsc.util.readkey3(hdr,'exptime')
     iraf.noao.digiphot.daophot.photpars.zmag = 0
-    iraf.noao.digiphot.daophot.datapars.readnoi = _gain
-    iraf.noao.digiphot.daophot.datapars.epadu = _ron
+    iraf.noao.digiphot.daophot.datapars.readnoi = _ron
+    iraf.noao.digiphot.daophot.datapars.epadu = _gain
     iraf.noao.digiphot.daophot.datapars.datamin = dmin
     iraf.noao.digiphot.daophot.datapars.datamax = dmax
     iraf.noao.daophot.fitskypars.annulus=a3
