@@ -260,8 +260,8 @@ if __name__ == "__main__":
                     20. / _pixelscale)
                 ap = str(a1) + "," + str(a2) + "," + str(a3)
                 iraf.noao.digiphot.daophot.photpars.zmag = 0
-                iraf.noao.digiphot.daophot.datapars.readnoi = _gain  #1.4   #_ron
-                iraf.noao.digiphot.daophot.datapars.epadu = _ron  #  13      #_gain
+                iraf.noao.digiphot.daophot.datapars.readnoi = _ron
+                iraf.noao.digiphot.daophot.datapars.epadu = _gain
                 iraf.noao.digiphot.daophot.datapars.datamin = _datamin
                 iraf.noao.digiphot.daophot.datapars.datamax = _datamax
                 iraf.noao.daophot.fitskypars.salgori = 'centroid'  # 'median', default is 'mode'
