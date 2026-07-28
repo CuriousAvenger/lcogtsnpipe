@@ -9,6 +9,8 @@ from importlib.resources import files as _pkg_files
 import re
 
 workdirectory = os.getenv('LCOSNDIR', '/supernova/')
+if not workdirectory.endswith('/'):
+   workdirectory = workdirectory+'/'
 
 configfile = os.path.join(workdirectory, 'configure')
 if not os.path.exists(configfile):
