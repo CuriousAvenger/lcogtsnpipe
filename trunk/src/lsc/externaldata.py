@@ -172,7 +172,7 @@ def downloadsdss(_ra,_dec,_band,_radius=20, force=False):
     from scipy import interpolate
     pos = coords.SkyCoord(ra=float(_ra)*u.deg,dec=float(_dec)*u.deg)
     print('pos =', pos)
-    xid = SDSS.query_region(pos, spectro=False, radius=_radius*u.arcsec)
+    xid = SDSS.query_region(pos, spectro=False, width=2*_radius*u.arcsec, height=2*_radius*u.arcsec)
     print(xid)
     if xid:
        pointing=[]
@@ -458,7 +458,7 @@ def sdss_swarp(imglist,_telescope='spectral',_ra='',_dec='',output='', objname='
     out_fits.writeto(output, overwrite=True, output_verify='fix')
     northupeastleft(filename=varimg)
     if show:
-       lsc.display_image(output,2,True,'','')
+       lsc.util.display_image(output,2,True,'','')
     return output, varimg
 
 def northupeastleft(filename='', data=None, header=None):
@@ -548,7 +548,8 @@ def geturl(ra, dec, size=10000, output_size=None, filters="gri", format="fits", 
 ##################################################################################
 def sloanimage(img,survey='sloan',frames=[], show=False, force=False):
    import sys
-   from lsc import readhdr, readkey3,deg2HMS,display_image
+   from lsc.util import readhdr, readkey3, display_image
+   from lsc.lscabsphotdef import deg2HMS
    if show:
       display_image(img,1,True,'','')
    hdr = readhdr(img)
@@ -642,11 +643,11 @@ def downloadPS1(homedir,filename):
                 else:
                     print('file already downloaded ')
 
-                if not os.path.isdir(homedir+filename):
-                    os.mkdir(homedir+filename)
+                if not os.path.isdir(os.path.join(homedir,filename)):
+                    os.mkdir(os.path.join(homedir, filename))
                 os.system('mv '+str.split(localFilename3,'/')[-1]+' '+homedir+filename+'/')
                 if 'unconv.fits' in str.split(localFilename3,'/')[-1]:
-                           frames.append(homedir+filename+'/'+str.split(localFilename3,'/')[-1])
+                           frames.append(os.path.join(homedir,filename,'/'+str.split(localFilename3,'/')[-1]))
     except:
         print('stamp_directory not found ')
         sys.exit()
