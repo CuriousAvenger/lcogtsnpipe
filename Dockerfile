@@ -52,9 +52,9 @@ RUN pip install cryptography==2.4.1 astropy matplotlib==2.2.5 pyraf mysql-python
 
 RUN pip install sep==1.0.3 git+https://github.com/dguevel/PyZOGY.git
 
-RUN wget http://ds9.si.edu/download/debian12x86/ds9.debian12x86.8.6.tar.gz \
-        && tar -xzvf ds9.debian12x86.8.6.tar.gz -C /usr/local/bin \
-        && rm -rf ds9.debian12x86.8.6.tar.gz
+RUN wget https://ds9.si.edu/download/debian12x86/ds9.debian12x86.8.7.tar.gz \
+        && tar -xzvf ds9.debian12x86.8.7.tar.gz -C /usr/local/bin \
+        && rm -rf ds9.debian12x86.8.7.tar.gz
 
 RUN wget http://cdsarc.u-strasbg.fr/ftp/pub/sw/cdsclient.tar.gz \
         && tar -xzvf cdsclient.tar.gz -C /usr/src && rm cdsclient.tar.gz \
