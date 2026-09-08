@@ -224,8 +224,8 @@ if __name__ == "__main__":
             lsc.mysqldef.updatevalue('photlco', 'zn', float(ZZ0), str.split(re.sub('sn2.', '', img), '/')[-1])
             lsc.mysqldef.updatevalue('photlco', 'dzn', float(std2), str.split(re.sub('sn2.', '', img), '/')[-1])
             lsc.mysqldef.updatevalue('photlco', 'znnum', len(data2), str.split(re.sub('sn2.', '', img), '/')[-1])
-            headers = {'zn': [float(ZZ0), 'zeropoint'], 'dzn': [float(std2), 'zeropoint std'],
-                       'znnum': [len(data2), 'number of stars used for zeropoint']}
+            headers = {'zn': float(ZZ0), 'dzn': float(std2),
+                       'znnum': len(data2)}
             lsc.util.updateheader(img, 0, headers)
             print('zero point ', ZZ0)
             from pyraf import iraf
@@ -354,5 +354,5 @@ if __name__ == "__main__":
                     except:
                         pass
 
-            headers = {'apflux': [float(flux1) / _exptime, ''], 'dapflux': [float(error1) / _exptime, '']}
+            headers = {'apflux': float(flux1) / _exptime, 'dapflux': float(error1) / _exptime}
             lsc.util.updateheader(img, 0, headers)
