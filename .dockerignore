@@ -3,6 +3,7 @@ dist/
 *egg*
 mysql/
 data/
+artifacts/
 .git/
 trunk/build/
 trunk/dist/*egg*
