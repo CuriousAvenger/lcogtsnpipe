@@ -1,0 +1,39 @@
+services:
+  db:
+    image: mariadb:12.3
+    environment:
+      MARIADB_ROOT_PASSWORD: reduction-root
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - db-data:/var/lib/mysql
+
+  pipeline:
+    image: lcogtsnpipe:reduction
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    entrypoint: ["/bin/bash", "-lc", "while :; do sleep 3600; done"]
+    environment:
+      LCOSNDBROOTPASS: reduction-root
+      LCOSNDBHOST: db
+      LCOSNDBNAME: supernova
+      LCOSNDBUSER: supernova
+      LCOSNDBPASS: supernova
+      LCOSNDIR: /supernova
+      LCOSNPIPE: /lcogtsnpipe
+      LCO_API_KEY: "${LCO_API_KEY:-}"
+      MPLBACKEND: Agg
+      QT_QPA_PLATFORM: offscreen
+    volumes:
+      - ${REDUCTION_WORKDIR:?set REDUCTION_WORKDIR}:/supernova
+      - ${REDUCTION_DATASET_DIR:?set REDUCTION_DATASET_DIR}:/datasets:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:

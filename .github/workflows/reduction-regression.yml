@@ -1,0 +1,57 @@
+name: Reduction regression
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reduction-regression-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reduction:
+    name: ${{ matrix.case }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        case:
+          - basic-reduction/2017cbv
+          - uband-reduction/2017cbv
+          - diff-subtraction/2018cow
+          - basic-reduction/2023ixf-0m4
+          - basic-reduction/2023ixf-2m0
+    env:
+      REDUCTION_DATASET_URL_SN2017CBV: ${{ vars.REDUCTION_DATASET_URL_SN2017CBV }}
+      REDUCTION_DATASET_URL_SN2018COW: ${{ vars.REDUCTION_DATASET_URL_SN2018COW }}
+      REDUCTION_DATASET_URL_L101: ${{ vars.REDUCTION_DATASET_URL_L101 }}
+      LCO_API_KEY: ${{ secrets.LCO_API_KEY }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check LCO archive credentials
+        if: startsWith(matrix.case, 'basic-reduction/2023ixf-')
+        run: |
+          if [[ -z "$LCO_API_KEY" ]]; then
+            echo "Set the LCO_API_KEY Actions secret to run the 2023ixf archive-ingest cases." >&2
+            exit 1
+          fi
+
+      - name: Run reduction case
+        run: ./ci/reduction/run.sh "${{ matrix.case }}"
+
+      - name: Save reduction logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reduction-${{ strategy.job-index }}-${{ github.run_id }}
+          path: artifacts/reduction-runs/*/logs/
+          if-no-files-found: ignore
+          retention-days: 14
