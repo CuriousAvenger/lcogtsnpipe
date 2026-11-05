@@ -30,7 +30,6 @@ services:
       QT_QPA_PLATFORM: offscreen
     volumes:
       - ${REDUCTION_WORKDIR:?set REDUCTION_WORKDIR}:/supernova
-      - ${REDUCTION_DATASET_DIR:?set REDUCTION_DATASET_DIR}:/datasets:ro
     depends_on:
       db:
         condition: service_healthy

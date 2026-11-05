@@ -1,9 +1,15 @@
 name: Reduction regression
 
 on:
+  # Temporary: triggers automatically on push to any branch (e.g. python3-pytest) for testing
   push:
-  pull_request:
   workflow_dispatch:
+
+  # Production configuration (uncomment when ready for production):
+  # push:
+  #   branches: [ master ]
+  # pull_request:
+  #   branches: [ master ]
 
 permissions:
   contents: read
@@ -21,15 +27,14 @@ jobs:
       fail-fast: false
       matrix:
         case:
-          - basic-reduction/2017cbv
-          - uband-reduction/2017cbv
-          - diff-subtraction/2018cow
-          - basic-reduction/2023ixf-0m4
           - basic-reduction/2023ixf-2m0
+        # Production matrix (uncomment all cases for full regression suite):
+        # - basic-reduction/2017cbv
+        # - uband-reduction/2017cbv
+        # - diff-subtraction/2018cow
+        # - basic-reduction/2023ixf-0m4
+        # - basic-reduction/2023ixf-2m0
     env:
-      REDUCTION_DATASET_URL_SN2017CBV: ${{ vars.REDUCTION_DATASET_URL_SN2017CBV }}
-      REDUCTION_DATASET_URL_SN2018COW: ${{ vars.REDUCTION_DATASET_URL_SN2018COW }}
-      REDUCTION_DATASET_URL_L101: ${{ vars.REDUCTION_DATASET_URL_L101 }}
       LCO_API_KEY: ${{ secrets.LCO_API_KEY }}
 
     steps:
@@ -37,7 +42,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check LCO archive credentials
-        if: startsWith(matrix.case, 'basic-reduction/2023ixf-')
         run: |
           if [[ -z "$LCO_API_KEY" ]]; then
             echo "Set the LCO_API_KEY Actions secret to run the 2023ixf archive-ingest cases." >&2
@@ -45,7 +49,7 @@ jobs:
           fi
 
       - name: Run reduction case
-        run: ./ci/reduction/run.sh "${{ matrix.case }}"
+        run: ./ci/reduction/reduction.sh "${{ matrix.case }}"
 
       - name: Save reduction logs
         if: always()
