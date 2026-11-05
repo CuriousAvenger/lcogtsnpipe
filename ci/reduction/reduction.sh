@@ -30,6 +30,7 @@ data_dir="$run_dir/data"
 log_dir="$run_dir/logs"
 
 mkdir -p "$data_dir/standard/cat/apass" "$data_dir/standard/cat/landolt" "$log_dir"
+chmod -R 777 "$run_dir"
 export REDUCTION_WORKDIR="$data_dir"
 
 compose=(docker compose -p "lcogt-$run_id" -f "$script_dir/compose.yml")
@@ -49,6 +50,7 @@ trap 'exit 143' TERM
 echo "Building and starting pipeline for $case_name..."
 "${compose[@]}" build pipeline
 "${compose[@]}" up -d db pipeline
+"${compose[@]}" exec -u 0:0 -T pipeline chown -R supernova:supernova /supernova
 
 run_pipeline() {
     local command=$1
