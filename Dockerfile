@@ -69,7 +69,7 @@ RUN case "$(uname -m)" in \
         && tar -xzvf "ds9.${DS9_PKG}.8.8.tar.gz" -C /usr/local/bin \
         && rm -f "ds9.${DS9_PKG}.8.8.tar.gz"
 
-RUN wget https://zenodo.org/records/6515930/files/cdsclient-3.84.tar.gz \
+RUN wget https://zenodo.org/records/6515930/files/cdsclient-3.84.tar.gz -O cdsclient.tar.gz \
         && tar -xzvf cdsclient.tar.gz -C /usr/src && rm cdsclient.tar.gz \
         && cd /usr/src/cdsclient-* && ./configure && make && make install
 
