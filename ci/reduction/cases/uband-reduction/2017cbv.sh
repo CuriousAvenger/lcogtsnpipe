@@ -1,11 +1,4 @@
-DATASETS="l101 sn2017cbv"
-TARGET=SN2017cbv
-EPOCH=20170515
-STANDARD_CATALOG=L101_landolt_stetson.cat
-LOCAL_CATALOG=SN2017cbv_landolt_20260115_01_02.cat
-
 run_case() {
-    run_pipeline "ingesttar.py -f /datasets/$(dataset_archive l101)"
     run_pipeline "LCOGTingest.py -n SN2017cbv -s 2017-05-15 -e 2017-05-19 -t EXPOSE -r reduced --public"
     run_pipeline 'comparecatalogs.py'
     run_pipeline 'mysql -h db -D supernova -u supernova -psupernova --skip-ssl -e "UPDATE targets SET classificationid=1 WHERE id=1"'
