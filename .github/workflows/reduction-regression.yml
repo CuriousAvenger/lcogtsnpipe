@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  reduction:
+  reduction-drift:
     name: ${{ matrix.case }}
     runs-on: ubuntu-24.04
     timeout-minutes: 360
@@ -38,24 +38,43 @@ jobs:
       LCO_API_KEY: ${{ secrets.LCO_API_KEY }}
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
       - name: Check LCO archive credentials
         run: |
           if [[ -z "$LCO_API_KEY" ]]; then
-            echo "Set the LCO_API_KEY Actions secret to run the 2023ixf archive-ingest cases." >&2
+            echo "Set the LCO_API_KEY Actions secret to run the reduction cases." >&2
             exit 1
           fi
 
-      - name: Run reduction case
-        run: ./ci/reduction/reduction.sh "${{ matrix.case }}"
+      - name: Check out candidate branch
+        uses: actions/checkout@v4
+        with:
+          path: branch
 
-      - name: Save reduction logs
+      - name: Check out reference master branch
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          path: master
+
+      - name: Run reference reduction on master
+        run: ./branch/ci/reduction/reduction.sh master ./master "${{ matrix.case }}"
+
+      - name: Run candidate reduction on branch
+        run: ./branch/ci/reduction/reduction.sh branch ./branch "${{ matrix.case }}"
+
+      - name: Compare reduction drift between master and branch
+        run: |
+          python3 ./branch/ci/reduction/compare.py \
+            --reference ./branch/artifacts/dumps/master_dump.json \
+            --candidate ./branch/artifacts/dumps/branch_dump.json
+
+      - name: Save reduction logs and database dumps
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: reduction-${{ strategy.job-index }}-${{ github.run_id }}
-          path: artifacts/reduction-runs/*/logs/
+          name: reduction-drift-${{ strategy.job-index }}-${{ github.run_id }}
+          path: |
+            branch/artifacts/dumps/
+            branch/artifacts/reduction-runs/*/logs/
           if-no-files-found: ignore
           retention-days: 14

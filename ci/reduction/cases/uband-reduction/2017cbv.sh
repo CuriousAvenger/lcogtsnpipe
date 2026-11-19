@@ -25,5 +25,4 @@ run_case() {
     run_pipeline "mysql -h db -D supernova -u supernova -psupernova --skip-ssl -e \"UPDATE targets SET landolt_cat='$LOCAL_CATALOG' WHERE id=1\""
     run_pipeline "lscloop.py -n $TARGET -e $EPOCH -f landolt -s zcat -F"
     run_pipeline "lscloop.py -n $TARGET -e $EPOCH -f landolt -s mag -F"
-    run_pipeline "python /lcogtsnpipe/ci/reduction/compare.py uband --target '$TARGET' --epoch '$EPOCH' --standard-id 1 --standard-catalog '$STANDARD_CATALOG' --local-catalog '$LOCAL_CATALOG'"
 }

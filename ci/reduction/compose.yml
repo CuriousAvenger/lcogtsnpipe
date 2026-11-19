@@ -12,10 +12,10 @@ services:
       - db-data:/var/lib/mysql
 
   pipeline:
-    image: lcogtsnpipe:reduction
+    image: ${PIPELINE_IMAGE:-lcogtsnpipe:reduction}
     build:
-      context: ../..
-      dockerfile: Dockerfile
+      context: ${PIPELINE_CONTEXT:-../..}
+      dockerfile: ${PIPELINE_DOCKERFILE:-Dockerfile}
     entrypoint: ["/bin/bash", "-lc", "while :; do sleep 3600; done"]
     environment:
       LCOSNDBROOTPASS: reduction-root
