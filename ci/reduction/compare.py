@@ -1,71 +1,59 @@
 #!/usr/bin/env python3
-"""Compare photlco dumps from master and branch reductions."""
+"""Compare every image and column in the master and branch photlco dumps."""
 
 import argparse
 import json
-import math
 import sys
 
-METRICS = ("mag", "psfmag", "zn", "fwhm", "wcs")
-
-
-def measured(value):
-    """Return value as a float, or None if the pipeline did not measure it."""
-    try:
-        number = float(value)
-    except (TypeError, ValueError):
-        return None
-    return number if math.isfinite(number) and number != 9999 else None
+# These record when the pipeline ran, so they differ on every run
+RUN_TIME_COLUMNS = {"datecreated", "lastmodified", "lastunpacked"}
+MISSING = "<missing>"
 
 
 def load_images(path):
     with open(path) as dump:
-        return {row["filename"]: row for row in json.load(dump) if row["filename"]}
+        return {row["filename"]: row for row in json.load(dump)}
 
 
-def metric_problems(metric, reference, candidate, tolerance):
-    problems = []
-    measured_images = 0
-    for filename, row in sorted(reference.items()):
-        master, branch = measured(row[metric]), measured(candidate[filename][metric])
-        if master is None and branch is None:
-            continue
-        measured_images += 1
-        if master is None or branch is None or abs(branch - master) > tolerance:
-            problems.append(f"{metric} {filename}: master={master}, branch={branch}")
-    if not measured_images:
-        problems.append(f"{metric}: no image has a measured value")
-    return problems
+def is_same(master, branch):
+    both_nan = master != master and branch != branch
+    return master == branch or both_nan
 
 
-def find_problems(reference, candidate, tolerance):
-    if not reference:
-        return ["master dump has no images"]
-    if reference.keys() != candidate.keys():
-        missing = sorted(reference.keys() - candidate.keys())
-        extra = sorted(candidate.keys() - reference.keys())
-        return [f"images differ: missing from branch={missing}, only in branch={extra}"]
-    return [
-        problem
-        for metric in METRICS
-        for problem in metric_problems(metric, reference, candidate, tolerance)
-    ]
+def compare_image(filename, master, branch):
+    differences = []
+    for column in sorted((master.keys() | branch.keys()) - RUN_TIME_COLUMNS):
+        master_value = master.get(column, MISSING)
+        branch_value = branch.get(column, MISSING)
+        if not is_same(master_value, branch_value):
+            differences.append(f"{filename} {column}: master={master_value!r}, branch={branch_value!r}")
+    return differences
+
+
+def compare_dumps(master, branch):
+    differences = [f"{filename}: missing from branch" for filename in sorted(master.keys() - branch.keys())]
+    differences += [f"{filename}: only in branch" for filename in sorted(branch.keys() - master.keys())]
+    for filename in sorted(master.keys() & branch.keys()):
+        differences += compare_image(filename, master[filename], branch[filename])
+    return differences
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--reference", required=True, help="master dump JSON")
     parser.add_argument("--candidate", required=True, help="branch dump JSON")
-    parser.add_argument("--tolerance", type=float, default=0.005)
     args = parser.parse_args()
 
-    reference = load_images(args.reference)
-    candidate = load_images(args.candidate)
-    problems = find_problems(reference, candidate, args.tolerance)
-    if problems:
-        print("\n".join(f"FAIL: {problem}" for problem in problems), file=sys.stderr)
-        sys.exit(1)
-    print(f"PASS: {len(reference)} images match master within {args.tolerance}")
+    master = load_images(args.reference)
+    branch = load_images(args.candidate)
+    if not master and not branch:
+        sys.exit("FAIL: both dumps are empty")
+
+    differences = compare_dumps(master, branch)
+    if differences:
+        print("\n".join(f"FAIL: {difference}" for difference in differences), file=sys.stderr)
+        sys.exit(f"FAIL: {len(differences)} differences found")
+    print(f"PASS: all {len(master)} images are identical")
 
 
 if __name__ == "__main__":
