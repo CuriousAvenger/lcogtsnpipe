@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         case:
-          - basic-reduction/2023ixf-2m0
+          - basic-reduction/2023ixf-0m4
         # Production matrix (uncomment all cases for full regression suite):
         # - basic-reduction/2017cbv
         # - uband-reduction/2017cbv
